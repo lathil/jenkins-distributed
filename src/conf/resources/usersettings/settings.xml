@@ -1,0 +1,68 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                          https://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+    <mirrors>
+
+        <mirror>
+            <!-- Repository Management with Nexus 53 -->
+            <!--This sends everything else to /public -->
+            <id>nexus</id>
+            <mirrorOf>*</mirrorOf>
+            <url>${MAVEN_CENTRAL_REPO}</url>
+        </mirror>
+
+    </mirrors>
+    <localRepository>/var/jenkins_home/maven-repo</localRepository>
+    <servers>
+        <server>
+            <id>nexus</id>
+            <username>lor.maxmini</username>
+            <password>lor.maxmini</password>
+        </server>
+        <server>
+            <id>releases</id>
+            <username>lor.maxmini</username>
+            <password>lor.maxmini</password>
+        </server>
+        <server>
+            <id>snapshots</id>
+            <username>lor.maxmini</username>
+            <password>lor.maxmini</password>
+        </server>
+    </servers>
+    <profiles>
+        <profile>
+            <id>nexus</id>
+            <repositories>
+                <repository>
+                    <id>releases</id>
+                    <url>http://central</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <url>http://nexus-nexus3.supermicro.intra.ruedenfer37.fr/repository/releases/</url>
+                </repository>
+                <repository>
+                    <id>snapshots</id>
+                    <url>http://central</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <url>http://nexus-nexus3.supermicro.intra.ruedenfer37.fr/repository/snapshots/</url>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+    <activeProfiles>
+        <!--make the profile active all the time -->
+        <activeProfile>nexus</activeProfile>
+    </activeProfiles>
+</settings>

@@ -1,0 +1,64 @@
+
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'idea'
+
+
+group = 'com.ptoceti'
+version = '1.0.0-SNAPSHOT'
+
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
+repositories {
+    maven { url 'http://repo.jenkins-ci.org/releases/'}
+    maven { url 'http://repo.jenkins-ci.org/releases/org/jenkins-ci/main/jenkins-core/'}
+    maven { url 'https://repo.jenkins-ci.org/public/'}
+    mavenCentral()
+}
+
+def JENKINS_VERSION = '2.182'
+
+configurations {
+    jenkinsWar
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.4.12'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile "org.jenkins-ci.main:jenkins-core:${JENKINS_VERSION}"
+    jenkinsWar group: 'org.jenkins-ci.main', name: 'jenkins-war', version: "${JENKINS_VERSION}"
+    implementation gradleApi()
+}
+
+sourceSets {
+    'init.groovy.d' {
+        groovy.srcDir file("src/init/groovy")
+        compileClasspath += sourceSets.main.output
+    }
+    conf {
+        resources.srcDir file('src/conf/resources')
+    }
+}
+
+task launchJenkins(type: JenkinsLauncher){
+    group = 'verification'
+    description = 'launch jenkins with provided configuration'
+
+    initialUserName = 'lor'
+    initialUserPassword = 'password'
+    jenkinsUiUrl = 'http://localhost:8080'
+    logfilepath = './build/logs'
+    jenkinsupdateSiteUrl = 'https://updates.jenkins.io/stable-2.176/update-center.json'
+}
+
+

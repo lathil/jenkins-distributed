@@ -1,0 +1,15 @@
+FROM centos:7.6.1810
+
+MAINTAINER Laurent Thil
+
+LABEL maintainer="lthil"
+
+RUN yum -y install socat && \
+   yum clean all
+
+VOLUME /var/run/docker.sock
+
+# docker tcp port
+EXPOSE 2375
+
+ENTRYPOINT ["socat", "TCP-LISTEN:2375,reuseaddr,fork","UNIX-CLIENT:/var/run/docker.sock"]

@@ -1,0 +1,17 @@
+credentials-binding
+ssh-agent
+ssh
+mask-passwords
+timestamper
+junit
+workflow-aggregator
+job-dsl
+script-security
+git
+git-parameter
+ssh-slaves
+role-strategy
+email-ext
+mailer
+configuration-as-code
+blueocean

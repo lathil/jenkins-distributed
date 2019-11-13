@@ -1,0 +1,49 @@
+FROM ptoceti/jenkins-ssh-slave-centos
+
+MAINTAINER Laurent Thil
+
+LABEL maintainer="lthil" \
+    io.openshift.tags="jenkins" \
+    io.openshift.expose-services="22:tcp" \
+    io.k8s.description="Jenkins 2 ssh slave node with java tooling" \
+    io.k8s.display-name="Jenkins 2 ssh slave"
+
+ARG MAVEN_CENTRAL_REPO=https://repo1.maven.org/maven2
+ARG NPMJS_REPO=https://registry.npmjs.org
+
+ENV MAVEN_CENTRAL_REPO=${MAVEN_CENTRAL_REPO} \
+    NPMJS_REPO=$[NPMJS_REPO]
+
+USER root
+
+RUN mkdir /opt/maven \
+    && cd /opt/maven \
+    && curl -fsSL -O https://www-eu.apache.org/dist/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz \
+    && tar xzvf apache-maven-3.5.4-bin.tar.gz \
+    && rm apache-maven-3.5.4-bin.tar.gz \
+    && curl -fsSL -O https://www-eu.apache.org/dist/maven/maven-3/3.6.1/binaries/apache-maven-3.6.1-bin.tar.gz \
+    && tar xzvf apache-maven-3.6.1-bin.tar.gz \
+    && rm apache-maven-3.6.1-bin.tar.gz
+
+RUN mkdir /opt/java \
+    && cd /opt/java \
+    && curl -fSL -o adoptopenjdk8-info.json 'https://api.adoptopenjdk.net/v2/info/releases/openjdk8?os=linux&arch=x64&heap_size=normal&openjdk_impl=hotspot&type=jdk&release=jdk8u222-b10' \
+    && curl -fSL -O $( cat adoptopenjdk8-info.json | grep "binary_link" | grep -Eo '(http|https)://[^"]+' | head -1) \
+    && tar xzf $( cat adoptopenjdk8-info.json | grep "binary_name" | grep -Eo '(OpenJDK)[^"]+' | head -1) \
+    && rm $( cat adoptopenjdk8-info.json | grep "binary_name" | grep -Eo '(OpenJDK)[^"]+' | head -1) \
+    && curl -fSL -o adoptopenjdk9-info.json 'https://api.adoptopenjdk.net/v2/info/releases/openjdk9?os=linux&arch=x64&heap_size=normal&openjdk_impl=hotspot&type=jdk&release=jdk-9%2B181' \
+    && curl -fSL -O $( cat adoptopenjdk9-info.json | grep "binary_link" | grep -Eo '(http|https)://[^"]+' | head -1) \
+    && tar xzf $( cat adoptopenjdk9-info.json | grep "binary_name" | grep -Eo '(OpenJDK)[^"]+' | head -1) \
+    && rm $( cat adoptopenjdk9-info.json | grep "binary_name" | grep -Eo '(OpenJDK)[^"]+' | head -1) \
+    && curl -fSL -o adoptopenjdk10-info.json 'https://api.adoptopenjdk.net/v2/info/releases/openjdk10?os=linux&arch=x64&heap_size=normal&openjdk_impl=hotspot&type=jdk&release=jdk-10.0.2%2B13.1' \
+    && curl -fSL -O $( cat adoptopenjdk10-info.json | grep "binary_link" | grep -Eo '(http|https)://[^"]+' | head -1) \
+    && tar xzf $( cat adoptopenjdk10-info.json | grep "binary_name" | grep -Eo '(OpenJDK)[^"]+' | head -1) \
+    && rm $( cat adoptopenjdk10-info.json | grep "binary_name" | grep -Eo '(OpenJDK)[^"]+' | head -1) \
+    && curl -fSL -o adoptopenjdk11-info.json 'https://api.adoptopenjdk.net/v2/info/releases/openjdk11?os=linux&arch=x64&heap_size=normal&openjdk_impl=hotspot&type=jdk&release=jdk-11.0.4%2B11' \
+    && curl -fSL -O $( cat adoptopenjdk11-info.json | grep "binary_link" | grep -Eo '(http|https)://[^"]+' | head -1) \
+    && tar xzf $( cat adoptopenjdk11-info.json | grep "binary_name" | grep -Eo '(OpenJDK)[^"]+' | head -1) \
+    && rm $( cat adoptopenjdk11-info.json | grep "binary_name" | grep -Eo '(OpenJDK)[^"]+' | head -1)
+
+USER ${user}
+
+

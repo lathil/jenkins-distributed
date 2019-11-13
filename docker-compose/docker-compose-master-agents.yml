@@ -1,0 +1,43 @@
+version: "3.7"
+services:
+  jenkins-master:
+    build:
+      context: ../
+      dockerfile: Dockerfile-centos-master
+    image: ptoceti/jenkins-centos-master:latest
+    container_name: ptoceti.jenkins-centos-master
+    ports:
+    - "8080:8080"
+    environment:
+    - JAVA_OPTS=-Dinitialsetup.jenkins.admin.user=admin -Dinitialsetup.jenkins.admin.password=password
+    - MAVEN_REPO=http:///repository/public/
+    - NPM_CONFIG_REGISTRY=http:///repository/npm-registry/
+    - CASC_JENKINS_CONFIG=/var/jenkins_home/jenkins-docker-agents.yaml
+    volumes:
+    - jenkins_master_home:/var/jenkins_home
+    secrets:
+    - jenkins-master_id_rsa
+    - mavenDeployPassword
+    networks:
+    - jenkins-udd
+    depends_on:
+    - docker-proxy
+  docker-proxy:
+    build:
+      context: ../
+      dockerfile: Dockerfile-docker-proxy
+    image: ptoceti/docker-proxy
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+    - jenkins-udd
+volumes:
+  jenkins_master_home:
+    external: true
+secrets:
+  jenkins-master_id_rsa:
+    file: ../src/conf/resources/secrets/jenkins-master/jenkins-master_id_rsa
+  mavenDeployPassword:
+    file: ../src/conf/resources/secrets/maven/maven-deploy-password
+networks:
+  jenkins-udd:
