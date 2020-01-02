@@ -36,8 +36,8 @@ volumes:
     external: true
 secrets:
   jenkins-master_id_rsa:
-    file: ../src/conf/resources/secrets/jenkins-master/jenkins-master_id_rsa
+    file: ~/secrets/jenkins-master/jenkins-master_id_rsa
   mavenDeployPassword:
-    file: ../src/conf/resources/secrets/maven/maven-deploy-password
+    file: ~/secrets/maven/maven-deploy-password
 networks:
   jenkins-udd:

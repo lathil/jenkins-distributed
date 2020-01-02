@@ -52,6 +52,22 @@ services:
     - jenkins-udd
     secrets:
     - jenkinsmasterSshPubKey
+  jenkins-slave-3:
+    build:
+      context: ../
+      dockerfile: Dockerfile-centos-slave-ssh
+    image: ptoceti/jenkins-centos-slave-ssh:latest
+    container_name: ptoceti-jenkins-centos-slave-3
+    ports:
+    - "10322:22"
+    environment:
+    - JENKINS_SLAVE_SSH_PUBKEY_SECRET=jenkinsmasterSshPubKey
+    volumes:
+    - jenkins_slave_3_home:/home/jenkins
+    networks:
+    - jenkins-udd
+    secrets:
+    - jenkinsmasterSshPubKey
 volumes:
   jenkins_master_home:
     external: true
@@ -59,12 +75,14 @@ volumes:
     external: true
   jenkins_slave_2_home:
     external: true
+  jenkins_slave_3_home:
+    external: true
 secrets:
   jenkins-master_id_rsa:
-    file: ../src/conf/resources/secrets/jenkins-master/jenkins-master_id_rsa
+    file: ~/secrets/jenkins-master/jenkins-master_id_rsa
   jenkinsmasterSshPubKey:
-    file: ../src/conf/resources/secrets/jenkins-master/jenkins-master_id_rsa.pub
+    file: ~/secrets/jenkins-master/jenkins-master_id_rsa.pub
   mavenDeployPassword:
-    file: ../src/conf/resources/secrets/maven/maven-deploy-password
+    file: ~/secrets/maven/maven-deploy-password
 networks:
   jenkins-udd:

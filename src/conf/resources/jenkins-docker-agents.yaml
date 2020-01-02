@@ -11,6 +11,7 @@ jenkins:
   views:
   - all:
       name: "all"
+  nodes:
   clouds:
     - docker:
         dockerApi:

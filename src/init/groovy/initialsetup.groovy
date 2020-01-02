@@ -254,6 +254,9 @@ if( julConfiFilePath != null) {
 
 }
 
+FileHandler allLogsHandler = new FileHandler(logsDir.absolutePath+"/jenkins-logs-%g.log", 1024 * 1024 * 10, 10, true)
+allLogsHandler.setFormatter(new SimpleFormatter())
+
 final Logger initialSetupLogger = Logger.getLogger(getClass().getName())
 initialSetupLogger.info("initialsetup.grovvy called.")
 
