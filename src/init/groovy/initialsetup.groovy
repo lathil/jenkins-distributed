@@ -19,6 +19,8 @@ import java.util.logging.FileHandler
 import java.util.logging.LogManager
 import java.util.logging.Logger
 
+import java.util.logging.SimpleFormatter
+
 import jenkins.model.*
 
 
@@ -32,6 +34,7 @@ class Constants {
     static final String ENV_ENKINS_JUL_LOGFILE_PATH = 'INITIALSETUP_JUL_LOGFILEPATH'
     static final String JENKINS_UPDATESITE_URL = 'initlalsetup.jenkins.updatesite.url'
     static final String ENV_JENKINS_UPDATESITE_URL = 'INITIALSETUP_JENKINS_UPDATESITE_URL'
+    static final String JENKINS_PLUGINS_FILE = 'initialsetup.jenkins.plugins.file'
 }
 
 /**
@@ -129,7 +132,7 @@ class SkipCreateAdminUserStepStateFilter extends InstallStateFilter {
                     }
                 }
 
-                log.info("Creating new admin user.")
+                log.info("Creating new admin user: ${adminName}, ${adminPassword}")
                 securityRealm.createAccount(adminName, adminPassword)
                 jenkins.save()
             }
@@ -182,7 +185,9 @@ class SkipPluginInstallStepStateFilter extends InstallStateFilter {
                 log.info( "Update site url : ${site.url}")
 
             }
-            File pluginsFile = new File("${jenkinsHome}/conf/plugins.txt")
+            def pluginConfFile = System.getProperty(Constants.JENKINS_PLUGINS_FILE)
+            pluginConfFile = pluginConfFile ? pluginConfFile : 'plugins.txt'
+            File pluginsFile = new File("${jenkinsHome}/conf/${pluginConfFile}")
             if( pluginsFile.exists()){
 
                 def pluginManager = Jenkins.get().pluginManager
