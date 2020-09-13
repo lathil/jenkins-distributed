@@ -54,3 +54,16 @@ Thoses dockerfiles are based on official Jenkins centos docker images. they all 
 - Dockerfile-centos-master : designed for running as solo as it include 3 differents maven installation a 3 jdk
 - Dockerfile-centos-master-kubernetes : designed for running on kubernetes. No tools
 ## Jenkins slave files Dockerfiles:
+- Dockerfile-centos-slave-jnlp : slave jnlp image with two different version of maven and 3 of openjdk
+- Dockerfile-centos-slave-jnlp-maven-java : slave jnlp image with maven an single installation of adoptopenjdk
+- Dockerfile-centos-slave-ssh : slave ssh image with two different version of maven and 3 of openjdk
+
+# Docker-compose
+Three differents settings:
+- docker-compose/docker-compose-master-solo.yml : single master launch settup bases on Dockerfile-centos-master image
+- docker-compose/docker-compose-master-agents.yml : master launch sttup based on Dockerfile-centos-master image and configured to launch agents through docker based on Dockerfile-centos-slave-jnlp
+- docker-compose-master-slaves.yml :  master launch sttup based on Dockerfile-centos-master with 2 slaves launchs based on Dockerfile-centos-slave-ssh
+
+# Kubernetes
+One example
+- kubernetes/kubernetes-jenkins2.yaml : yml template to luanch a Jenkins master based  on Dockerfile-centos-master-kubernetes.yml that launch slaves on demand.
