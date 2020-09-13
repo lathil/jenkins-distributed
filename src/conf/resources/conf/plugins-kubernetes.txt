@@ -18,8 +18,10 @@ mailer:1.29
 workflow-api:2.37
 config-file-provider:3.6.2
 blueocean:1.21.0
+kubernetes-client-api:4.6.4-2
+kubernetes-credentials:0.4.1
+kubernetes:1.19.3
 configuration-as-code:1.32
-
 
 
 

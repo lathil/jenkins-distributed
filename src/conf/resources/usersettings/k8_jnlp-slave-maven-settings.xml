@@ -10,26 +10,26 @@
             <!--This sends everything else to /public -->
             <id>nexus</id>
             <mirrorOf>*</mirrorOf>
-            <url>${MAVEN_CENTRAL_REPO}</url>
+            <url>${MAVEN_REPO}</url>
         </mirror>
 
     </mirrors>
-    <localRepository>/var/jenkins_home/maven-repo</localRepository>
+    <localRepository>/home/jenkins/agent/repository</localRepository>
     <servers>
         <server>
             <id>nexus</id>
-            <username>lor.maxmini</username>
-            <password>lor.maxmini</password>
+            <username>${mavenDeployerId}</username>
+            <password>${mavenDeployerPassword}</password>
         </server>
         <server>
             <id>releases</id>
-            <username>lor.maxmini</username>
-            <password>lor.maxmini</password>
+            <username>${mavenDeployerId}</username>
+            <password>${mavenDeployerPassword}</password>
         </server>
         <server>
             <id>snapshots</id>
-            <username>lor.maxmini</username>
-            <password>lor.maxmini</password>
+            <username>${mavenDeployerId}</username>
+            <password>${mavenDeployerPassword}</password>
         </server>
     </servers>
     <profiles>
@@ -44,7 +44,7 @@
                     <snapshots>
                         <enabled>false</enabled>
                     </snapshots>
-                    <url>http://nexus-nexus3.supermicro.intra.ruedenfer37.fr/repository/releases/</url>
+                    <url>${releaseRepoUrl}</url>
                 </repository>
                 <repository>
                     <id>snapshots</id>
@@ -54,7 +54,7 @@
                     <snapshots>
                         <enabled>false</enabled>
                     </snapshots>
-                    <url>http://nexus-nexus3.supermicro.intra.ruedenfer37.fr/repository/snapshots/</url>
+                    <url>${snapshotRepoUrl}</url>
                 </repository>
             </repositories>
         </profile>

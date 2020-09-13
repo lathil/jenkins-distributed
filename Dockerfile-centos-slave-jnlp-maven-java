@@ -1,0 +1,56 @@
+FROM ptoceti/docker-jnlp-slave-centos:latest
+
+MAINTAINER Laurent Thil
+
+LABEL maintainer="lthil" \
+    io.k8s.description="Jenkins 2 jnlp slave node with java tooling" \
+    io.k8s.display-name="Jenkins 2 jnlp slave"
+
+ARG MAVEN_CENTRAL_REPO=https://repo1.maven.org/maven2
+ARG NPMJS_REPO=https://registry.npmjs.org
+
+ENV MAVEN_CENTRAL_REPO=${MAVEN_CENTRAL_REPO} \
+    NPMJS_REPO=$[NPMJS_REPO]
+
+ARG MAVEN_VERSION=3.5.4
+ENV MAVEN_VERSION=${MAVEN_VERSION}
+
+ARG OPENJDK_RELEASE=latest
+ENV OPENJDK_RELEASE=${OPENJDK_RELEASE}
+
+ARG OPENJDK=openjdk8
+ENV OPENJDK=${OPENJDK}
+
+#ENV MAVEN_HOME=/opt/mvn
+
+USER root
+
+# change to tmp folder
+WORKDIR /tmp
+
+RUN yum install -y gcc-c++ make \
+    && yum clean all
+
+RUN mkdir /opt/mvn \
+    && curl -fsSL -O https://www-eu.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz \
+    && tar xzvf apache-maven-$MAVEN_VERSION-bin.tar.gz -C /opt/mvn \
+    && rm -f apache-maven-${MAVEN_VERSION}-bin.tar.gz \
+    && rm -f apache-maven-${MAVEN_VERSION}-bin.tar.gz.md5
+
+# add executables to path
+RUN update-alternatives --install "/usr/bin/mvn" "mvn" "/opt/mvn/apache-maven-${MAVEN_VERSION}/bin/mvn" 1 && \
+    update-alternatives --set "mvn" "/opt/mvn/apache-maven-${MAVEN_VERSION}/bin/mvn"
+
+RUN mkdir /opt/java \
+    && cd /opt/java \
+    && curl -fSLv -o adoptopenjdk-info.json 'https://api.adoptopenjdk.net/v2/info/releases/'${OPENJDK}'?os=linux&arch=x64&heap_size=normal&openjdk_impl=hotspot&type=jdk&release='${OPENJDK_RELEASE} \
+    && curl -fSLv -O $( cat adoptopenjdk-info.json | grep "binary_link" | grep -Eo '(http|https)://[^"]+' | head -1) \
+    && tar xzfv $( cat adoptopenjdk-info.json | grep "binary_name" | grep -Eo '(OpenJDK)[^"]+' | head -1) -C /usr/lib/jvm \
+    && echo $( ls -la /usr/lib/jvm) \
+    && echo $( cat adoptopenjdk-info.json | grep "release_name" | grep -Eo '(jdk)[^"]+'| head -1) \
+    && update-alternatives --verbose --install /usr/bin/java java /usr/lib/jvm/$( cat adoptopenjdk-info.json | grep "release_name" | grep -Eo '(jdk)[^"]+'| head -1)/bin/java 20000 \
+	&& update-alternatives --verbose --set java /usr/lib/jvm/$( cat adoptopenjdk-info.json | grep "release_name" | grep -Eo '(jdk)[^"]+'| head -1)/bin/java \
+	&& rm $( cat adoptopenjdk-info.json | grep "binary_name" | grep -Eo '(OpenJDK)[^"]+' | head -1)
+
+USER ${AGENT_USER}
+WORKDIR /home/${AGENT_USER}

@@ -18,6 +18,8 @@ class JenkinsLauncher extends DefaultTask {
     String jenkinsUiUrl = 'http://localhost:8080'
     String logfilepath = jenkinsHome + '/logs'
     String jenkinsupdateSiteUrl = 'https://updates.jenkins.io/update-center.json'
+    String jenkinsPluginsFile = 'plugins.txt'
+    String cascConfigFile ='jankins.yaml'
 
     @TaskAction
     def start() {
@@ -81,6 +83,8 @@ class JenkinsLauncher extends DefaultTask {
         System.setProperty('initialsetup.jenkins.jul.configfile', jenkinsHome + '/conf/logging.properties')
         System.setProperty('initialsetup.jenkins.jul.logfilepath', logfilepath )
         System.setProperty('initlalsetup.jenkins.updatesite.url', jenkinsupdateSiteUrl)
+        System.setProperty('initialsetup.jenkins.plugins.file', jenkinsPluginsFile)
+        System.setProperty('CASC_JENKINS_CONFIG', cascConfigFile)
 
 
         List<String> args = []

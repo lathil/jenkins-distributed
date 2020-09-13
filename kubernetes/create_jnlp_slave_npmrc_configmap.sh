@@ -1,0 +1,1 @@
+kubectl create configmap jenkins-jnlp-slave-npmrc-setting --from-file=npmrc=../src/conf/resources/usersettings/k8_jnlp-slave-npmrc -n udd --dry-run -o yaml | kubectl replace -f -

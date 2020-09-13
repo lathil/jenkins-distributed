@@ -59,6 +59,8 @@ task launchJenkins(type: JenkinsLauncher){
     jenkinsUiUrl = 'http://localhost:8080'
     logfilepath = './build/logs'
     jenkinsupdateSiteUrl = 'https://updates.jenkins.io/stable-2.176/update-center.json'
+    jenkinsPluginsFile = 'plugins-kubernetes.txt'
+    cascConfigFile = 'jenkins-kubernetes.yaml'
 }
 
 

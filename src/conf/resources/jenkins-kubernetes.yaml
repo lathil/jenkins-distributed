@@ -1,0 +1,196 @@
+jenkins:
+  systemMessage: "Jenkins Supermicro.\n\n"
+  numExecutors: 1
+  agentProtocols:
+    - "JNLP4-connect"
+    - "Ping"
+  slaveAgentPort: 5000
+  clouds:
+    - kubernetes:
+        connectTimeout: 5
+        containerCapStr: "10"
+        jenkinsTunnel: "jenkins2-jnlp-service.udd.svc.cluster.local:50000"
+        jenkinsUrl: "http://jenkins2-http-service.udd.svc.cluster.local"
+        maxRequestsPerHostStr: "32"
+        name: "kubernetes"
+        namespace: "udd"
+        readTimeout: 15
+        serverUrl: "https://kubernetes.default.svc.cluster.local"
+        templates:
+          - activeDeadlineSeconds: 1000
+            activeDeadlineSecondsStr: "1000"
+            containers:
+              - envVars:
+                  - envVar:
+                      key: "MAVEN_OPTS"
+                      value: "-Djavax.net.ssl.trustStore=/home/jenkins/.cacerts/customcacerts\
+                  \ -Djavax.net.ssl.trustStorePassword=changeit"
+                image: "ptoceti/docker-jnlp-slave-centos-maven-java8:jdk8u242-b08"
+                livenessProbe:
+                  failureThreshold: 100
+                  initialDelaySeconds: 100
+                  periodSeconds: 0
+                  successThreshold: 0
+                  timeoutSeconds: 100
+                name: "jnlp"
+                ttyEnabled: true
+                workingDir: "/home/jenkins/agent"
+            customWorkspaceVolumeEnabled: true
+            label: "jenkins-slave-maven-java8"
+            name: "jenkins-slave-maven-java8"
+            namespace: "udd"
+            volumes:
+              - configMapVolume:
+                  configMapName: "jenkins-jnlp-slave-maven-setting"
+                  mountPath: "/home/jenkins/.m2"
+              - configMapVolume:
+                  configMapName: "jenkins-jnlp-slave-customcacerts"
+                  mountPath: "/home/jenkins/.cacerts"
+            workspaceVolume:
+              hostPathWorkspaceVolume:
+                hostPath: "/mnt/local-storage/hdd/disk1"
+            yamlMergeStrategy: "override"
+          - activeDeadlineSeconds: 1000
+            activeDeadlineSecondsStr: "1000"
+            containers:
+              - envVars:
+                  - envVar:
+                      key: "MAVEN_OPTS"
+                      value: "-Djavax.net.ssl.trustStore=/home/jenkins/.cacerts/customcacerts\
+                  \ -Djavax.net.ssl.trustStorePassword=changeit"
+                image: "ptoceti/docker-jnlp-slave-centos-maven-java11:jdk-11.0.6_10"
+                livenessProbe:
+                  failureThreshold: 0
+                  initialDelaySeconds: 0
+                  periodSeconds: 0
+                  successThreshold: 0
+                  timeoutSeconds: 0
+                name: "jnlp"
+                ttyEnabled: true
+                workingDir: "/home/jenkins/agent"
+            customWorkspaceVolumeEnabled: true
+            label: "jenkins-slave-maven-java11"
+            name: "jenkins-slave-maven-java11"
+            namespace: "udd"
+            volumes:
+              - configMapVolume:
+                  configMapName: "jenkins-jnlp-slave-maven-setting"
+                  mountPath: "/home/jenkins/.m2"
+              - configMapVolume:
+                  configMapName: "jenkins-jnlp-slave-customcacerts"
+                  mountPath: "/home/jenkins/.cacerts"
+            workspaceVolume:
+              hostPathWorkspaceVolume:
+                hostPath: "/mnt/local-storage/hdd/disk2"
+            yamlMergeStrategy: "override"
+  globalNodeProperties:
+    - envVars:
+        env:
+          - key: "MAVEN_REPO"
+            value: "https://nexus3.supermicro.intra.ruedenfer37.fr/repository/public/"
+          - key: "releaseRepoUrl"
+            value: "https://nexus3.supermicro.intra.ruedenfer37.fr/repository/releases/"
+          - key: "snapshotRepoUrl"
+            value: "https://nexus3.supermicro.intra.ruedenfer37.fr/repository/snapshots/"
+          - key: "mavenDeployerId"
+            value: "lor.maxmini"
+          - key: "mavenDeployerPassword"
+            value: "lor.maxmini"
+  primaryView:
+    all:
+      name: "all"
+  views:
+  - all:
+      name: "all"
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - basicSSHUserPrivateKey:
+              scope: SYSTEM
+              id: 'jenkins-master_id_rsa'
+              username: jenkins
+              passphrase: ''
+              description: "Jenkins master private ssh key"
+              privateKeySource:
+                directEntry:
+                  privateKey: ${jenkins-master_id_rsa}
+          - usernamePassword:
+              scope: SYSTEM
+              id: 'maven-deploy-password'
+              username: 'maven-deployer'
+              password: ${maven-deploy-password}
+          - fileSystemServiceAccountCredential:
+              id: "cee00dc1-1cba-4441-b432-d5cc5c3718c2"
+              scope: GLOBAL
+tool:
+  git:
+    installations:
+      - home: "/usr/bin/git"
+        name: "git"
+  jdk:
+    installations:
+      - home: "/usr/lib/jvm/jdk8u242-b08"
+        name: "jdk8u242-b08"
+      - home: "/usr/lib/jvm/jdk-11.0.6+10"
+        name: "jdk-11.0.6+10"
+  maven:
+    installations:
+      - home: "/opt/mvn/apache-maven-3.5.4"
+        name: "maven-3.5.4"
+      - home: "/opt/mvn/apache-maven-3.6.3"
+        name: "maven-3.6.3"
+unclassified:
+  globalConfigFiles:
+      configs:
+      - globalMavenSettings:
+          comment: "Maven settings via Cfg"
+          content: |-
+                             <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                                       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                       xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                                                       https://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+                                 <mirrors>
+                                     <mirror>
+                                         <id>nexus</id>
+                                         <mirrorOf>*</mirrorOf>
+                                         <url>^${MAVEN_REPO}</url>
+                                     </mirror>
+
+                                 </mirrors>
+                                 <localRepository>/var/jenkins_home/maven-repo</localRepository>
+                                 <servers>
+                                     <server>
+                                         <id>releases</id>
+                                         <username></username>
+                                         <password></password>
+                                     </server>
+                                     <server>
+                                         <id>snapshots</id>
+                                         <username></username>
+                                         <password>l</password>
+                                     </server>
+                                 </servers>
+                                 <profiles>
+                                     <profile>
+                                         <id>nexus</id>
+                                         <properties>
+                                             <releaseRepoUrl></releaseRepoUrl>
+                                             <snapshotRepoUrl></snapshotRepoUrl>
+                                         </properties>
+                                     </profile>
+                                 </profiles>
+                                 <activeProfiles>
+                                     <!--make the profile active all the time -->
+                                     <activeProfile>nexus</activeProfile>
+                                 </activeProfiles>
+                             </settings>
+          id: "34967f46-eb36-49b8-ad32-68626e9edde6"
+          isReplaceAll: true
+          name: "globalMavenSettings"
+          providerId: "org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig"
+          serverCredentialMappings:
+            - credentialsId: "maven-deploy-password"
+              serverId: "nexus"
+

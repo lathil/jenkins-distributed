@@ -16,10 +16,9 @@ git-parameter:0.9.11
 email-ext:2.68
 mailer:1.29
 workflow-api:2.37
+docker-plugin:1.1.8
 config-file-provider:3.6.2
-blueocean:1.21.0
 configuration-as-code:1.32
-
 
 
 

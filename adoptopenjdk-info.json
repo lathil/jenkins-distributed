@@ -1,0 +1,27 @@
+{
+  "release_name": "jdk8u242-b08",
+  "release_link": "https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/tag/jdk8u242-b08",
+  "timestamp": "2020-01-21T10:14:53Z",
+  "release": true,
+  "binaries": [
+    {
+      "os": "linux",
+      "architecture": "x64",
+      "binary_type": "jdk",
+      "openjdk_impl": "hotspot",
+      "binary_name": "OpenJDK8U-jdk_x64_linux_hotspot_8u242b08.tar.gz",
+      "binary_link": "https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u242-b08/OpenJDK8U-jdk_x64_linux_hotspot_8u242b08.tar.gz",
+      "binary_size": 104566766,
+      "checksum_link": "https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u242-b08/OpenJDK8U-jdk_x64_linux_hotspot_8u242b08.tar.gz.sha256.txt",
+      "version": "8",
+      "version_data": {
+        "openjdk_version": "8u242-b08",
+        "semver": "8.0.242+8"
+      },
+      "heap_size": "normal",
+      "download_count": 1150,
+      "updated_at": "2020-01-21T10:15:44Z"
+    }
+  ],
+  "download_count": 105323
+}

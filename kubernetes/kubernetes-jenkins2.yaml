@@ -1,0 +1,173 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins2-serviceacount
+  namespace: udd
+  labels:
+    app.kubernetes.io/name: jenkins2
+    app.kubernetes.io/part-of: jenkins2
+imagePullSecrets:
+  - name: docker-all-nexus3
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: jenkins2-role-binding
+  namespace: udd
+  labels:
+    app.kubernetes.io/name: jenkins2
+    app.kubernetes.io/part-of: jenkins2
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: udd-role
+subjects:
+  - kind: ServiceAccount
+    name: jenkins2-serviceacount
+    namespace: udd
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: jenkins2-cluster-role-binding
+  namespace: udd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: udd-clusterrole
+subjects:
+  - kind: ServiceAccount
+    name: jenkins2-serviceacount
+    namespace: udd
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  labels:
+    app.kubernetes.io/name: jenkins2
+    app.kubernetes.io/part-of: jenkins2
+  name: jenkins2-config
+  namespace: udd
+data:
+  java_opts: "-Dinitialsetup.jenkins.admin.user=admin -Dinitialsetup.jenkins.admin.password=password -Dinitialsetup.jenkins.ui.url=https://jenkins2.supermicro.intra.ruedenfer37.fr"
+  maven_repo: "https://nexus3.supermicro.intra.ruedenfer37.fr/repository/public/"
+  npm_config_registry: "https://nexus3.supermicro.intra.ruedenfer37.fr/repository/npm-proxy/"
+  casc_configfile: "/var/jenkins_home/jenkins.yaml"
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: jenkins2-deployment
+  namespace: udd
+  labels:
+    app: jenkins2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins2
+  template:
+    metadata:
+      labels:
+        app: jenkins2
+        name: jenkins2
+    spec:
+      securityContext:
+        runAsUser: 2001
+        runAsGroup: 2001
+      containers:
+        - name: jenkins2
+          image: docker-all-nexus3.supermicro.intra.ruedenfer37.fr/ptoceti/jenkins-master-centos-kubernetes:latest
+          ports:
+            - containerPort: 8080
+              name: jenkins2-http
+              protocol: TCP
+            - containerPort: 50000
+              name: jenkins2-jnlp
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/jenkins_home
+              name: jenkins2-home
+          resources:
+            limits:
+              memory: "2Gi"
+              cpu: "2"
+            requests:
+              memory: "2Gi"
+              cpu: "2"
+          env:
+            - name: JAVA_OPTS
+              valueFrom:
+                configMapKeyRef:
+                  key: java_opts
+                  name: jenkins2-config
+            - name: MAVEN_REPO
+              valueFrom:
+                configMapKeyRef:
+                  key: maven_repo
+                  name: jenkins2-config
+            - name: NPM_CONFIG_REGISTRY
+              valueFrom:
+                configMapKeyRef:
+                  key: npm_config_registry
+                  name: jenkins2-config
+            - name: CASC_JENKINS_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  key: casc_configfile
+                  name: jenkins2-config
+      imagePullSecrets:
+        - name: docker-all-nexus3
+      volumes:
+        - name: jenkins2-home
+          hostPath:
+            path: /mnt/local-storage/hdd/disk8
+            type: Directory
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: jenkins2-http-service
+  namespace: udd
+spec:
+  selector:
+    app: jenkins2
+  ports:
+    - name: jenkins2-http
+      port: 80
+      targetPort: jenkins2-http
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: jenkins2-jnlp-service
+  namespace: udd
+spec:
+  selector:
+    app: jenkins2
+  ports:
+    - name: jenkins2-jnlp
+      port: 50000
+      targetPort: jenkins2-jnlp
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: jenkins2-ingress
+  namespace: udd
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/frontend-entry-points: http,https
+spec:
+  tls:
+    - hosts:
+        - jenkins2.supermicro.intra.ruedenfer37.fr
+      secretName: supermicro-tls-secret
+  rules:
+    - host: jenkins2.supermicro.intra.ruedenfer37.fr
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: jenkins2-http-service
+              servicePort: jenkins2-http
