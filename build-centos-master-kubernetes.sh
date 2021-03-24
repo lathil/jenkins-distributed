@@ -1,3 +1,3 @@
-docker build -f Dockerfile-centos-master-kubernetes -t ptoceti/jenkins-master-centos-kubernetes:latest .
-docker tag ptoceti/jenkins-master-centos-kubernetes:latest docker-internal-nexus3.supermicro.intra.ruedenfer37.fr/ptoceti/jenkins-master-centos-kubernetes:latest
-docker push docker-internal-nexus3.supermicro.intra.ruedenfer37.fr/ptoceti/jenkins-master-centos-kubernetes:latest
+docker build -f Dockerfile-centos-master-solo-kubernetes -t ptoceti/jenkins-master-centos-kubernetes:2.204.6 .
+docker tag ptoceti/jenkins-master-centos-kubernetes:2.204.6 docker-internal-nexus3.supermicro.intra.ruedenfer37.fr/ptoceti/jenkins-master-centos-kubernetes:2.204.6
+docker push docker-internal-nexus3.supermicro.intra.ruedenfer37.fr/ptoceti/jenkins-master-centos-kubernetes:2.204.6

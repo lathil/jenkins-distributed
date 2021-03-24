@@ -26,7 +26,7 @@ repositories {
     mavenCentral()
 }
 
-def JENKINS_VERSION = '2.182'
+def JENKINS_VERSION = '2.204.6'
 
 configurations {
     jenkinsWar
@@ -36,6 +36,7 @@ dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.4.12'
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile "org.jenkins-ci.main:jenkins-core:${JENKINS_VERSION}"
+
     jenkinsWar group: 'org.jenkins-ci.main', name: 'jenkins-war', version: "${JENKINS_VERSION}"
     implementation gradleApi()
 }
@@ -50,6 +51,7 @@ sourceSets {
     }
 }
 
+
 task launchJenkins(type: JenkinsLauncher){
     group = 'verification'
     description = 'launch jenkins with provided configuration'
@@ -58,9 +60,12 @@ task launchJenkins(type: JenkinsLauncher){
     initialUserPassword = 'password'
     jenkinsUiUrl = 'http://localhost:8080'
     logfilepath = './build/logs'
-    jenkinsupdateSiteUrl = 'https://updates.jenkins.io/stable-2.176/update-center.json'
+    jenkinsupdateSiteUrl = "https://updates.jenkins.io/update-center.json"
+    //jenkinsupdateSiteUrl = "https://updates.jenkins.io/stable-${JENKINS_VERSION}/update-center.json"
     jenkinsPluginsFile = 'plugins-kubernetes.txt'
     cascConfigFile = 'jenkins-kubernetes.yaml'
+
+    jenkinsHomeDir = file("${buildDir}")
 }
 
 

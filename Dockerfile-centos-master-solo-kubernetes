@@ -40,7 +40,7 @@ RUN mkdir -p /var/cache/jenkins/war \
 
 COPY src/init/groovy/initialsetup.groovy /usr/share/jenkins/ref/init.groovy.d/initialsetup.groovy.override
 COPY src/conf/resources/conf/logging.properties /usr/share/jenkins/ref/conf/logging.properties.override
-COPY src/conf/resources/jenkins-kubernetes.yaml /usr/share/jenkins/ref/jenkins.yaml.override
+COPY src/conf/resources/jenkins-solo-kubernetes.yaml /usr/share/jenkins/ref/jenkins.yaml.override
 
 ENV JENKINS_UC=https://updates.jenkins.io/dynamic-stable-2.204.6 \
     INITIALSETUP_JENKINS_UPDATESITE_URL=https://updates.jenkins.io/dynamic-stable-2.204.6/update-center.json \
@@ -50,7 +50,7 @@ ENV JENKINS_UC=https://updates.jenkins.io/dynamic-stable-2.204.6 \
 COPY src/conf/resources/usersettings/settings.xml /usr/share/jenkins/ref/.m2/settings.xml.override
 COPY src/conf/resources/usersettings/.npmrc /usr/share/jenkins/ref/.npmrc.override
 
-COPY src/conf/resources/conf/plugins-kubernetes.txt /usr/share/jenkins/ref/plugins.txt
+COPY src/conf/resources/conf/plugins-solo-kubernetes.txt /usr/share/jenkins/ref/plugins.txt
 
 RUN chown -R jenkins:jenkins /usr/share/jenkins/ref
 
@@ -59,3 +59,5 @@ USER jenkins
 RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
 
 #ENV JENKINS_OPTS="--webroot=/var/cache/jenkins/war"
+
+
