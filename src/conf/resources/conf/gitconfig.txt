@@ -1,0 +1,4 @@
+[http "https://gitea.supermicro.intra.ruedenfer37.fr"]
+    sslCAInfo = "/var/jenkins_home/git-certs/cert.pem"
+    sslCAPath = "var/jenkins_home/git-certs"
+    sslVerify = true

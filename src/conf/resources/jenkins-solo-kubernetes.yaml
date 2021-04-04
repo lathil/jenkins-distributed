@@ -18,6 +18,8 @@ jenkins:
             value: "lor.maxmini"
           - key: "mavenDeployerPassword"
             value: "lor.maxmini"
+          - key: "giteaJenkinsUserPassword"
+            value: "password"
   primaryView:
     all:
       name: "all"
@@ -42,6 +44,11 @@ credentials:
               id: 'maven-deploy-password'
               username: 'maven-deployer'
               password: ${maven-deploy-password}
+          - usernamePassword:
+              scope: SYSTEM
+              id: 'jenkins-gitea-user'
+              username: 'jenkins'
+              password: ${giteaJenkinsUserPassword}
           - fileSystemServiceAccountCredential:
               id: "cee00dc1-1cba-4441-b432-d5cc5c3718c2"
               scope: GLOBAL
