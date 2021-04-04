@@ -1,0 +1,217 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins2-serviceacount
+  namespace: udd
+  labels:
+    app.kubernetes.io/name: jenkins2
+    app.kubernetes.io/part-of: jenkins2
+imagePullSecrets:
+  - name: docker-all-nexus3
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: jenkins2-role-binding
+  namespace: udd
+  labels:
+    app.kubernetes.io/name: jenkins2
+    app.kubernetes.io/part-of: jenkins2
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: udd-role
+subjects:
+  - kind: ServiceAccount
+    name: jenkins2-serviceacount
+    namespace: udd
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: jenkins2-cluster-role-binding
+  namespace: udd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: udd-clusterrole
+subjects:
+  - kind: ServiceAccount
+    name: jenkins2-serviceacount
+    namespace: udd
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  labels:
+    app.kubernetes.io/name: jenkins2
+    app.kubernetes.io/part-of: jenkins2
+  name: jenkins2-config
+  namespace: udd
+data:
+  java_opts: "-Djavax.net.ssl.trustStore=/var/jenkins_home/.cacerts/customcacerts -Djavax.net.ssl.trustStorePassword=changeit -Dinitialsetup.jenkins.admin.user=admin -Dinitialsetup.jenkins.admin.password=password -Dinitialsetup.jenkins.ui.url=https://jenkins2.supermicro.intra.ruedenfer37.fr"
+  maven_repo: "https://nexus3.supermicro.intra.ruedenfer37.fr/repository/public/"
+  maven_opts: "-Djavax.net.ssl.trustStore=/var/jenkins_home/.cacerts/customcacerts -Djavax.net.ssl.trustStorePassword=changeit"
+  npm_config_registry: "https://nexus3.supermicro.intra.ruedenfer37.fr/repository/npm-registry/"
+  casc_configfile: "/var/jenkins_home/jenkins.yaml"
+  node_extra_ca_certs: "/var/jenkins_home/ca/ptoceti-ca.pem"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/name: jenkins2
+    app.kubernetes.io/part-of: jenkins2
+  name: jenkins-git-config
+  namespace: udd
+data:
+  .gitconfig: |
+    [http "https://*.supermicro.intra.ruedenfer37.fr"]
+        sslCAInfo = "/var/jenkins_home/ca/ptoceti-ca.pem"
+        sslCAPath = "/var/jenkins_home/ca"
+        sslVerify = true
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: jenkins2-deployment
+  namespace: udd
+  labels:
+    app: jenkins2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins2
+  template:
+    metadata:
+      labels:
+        app: jenkins2
+        name: jenkins2
+    spec:
+      securityContext:
+        runAsUser: 2001
+        runAsGroup: 2001
+      containers:
+        - name: jenkins2
+          image: docker-all-nexus3.supermicro.intra.ruedenfer37.fr/ptoceti/jenkins-master-centos-kubernetes:2.204.6
+          ports:
+            - containerPort: 8080
+              name: jenkins2-http
+              protocol: TCP
+            - containerPort: 50000
+              name: jenkins2-jnlp
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/jenkins_home
+              name: jenkins2-home
+            - mountPath: /var/jenkins_home/.cacerts
+              name: cacerts
+            - mountPath: /var/jenkins_home/ca/ptoceti-ca.pem
+              subPath: ptoceti-ca.pem
+              name: ca-certs
+            - mountPath: /var/jenkins_home/.gitconfig
+              subPath: .gitconfig
+              name: gitconfig
+          resources:
+            limits:
+              memory: "4Gi"
+              cpu: "2"
+            requests:
+              memory: "4Gi"
+              cpu: "2"
+          env:
+            - name: JAVA_OPTS
+              valueFrom:
+                configMapKeyRef:
+                  key: java_opts
+                  name: jenkins2-config
+            - name: MAVEN_REPO
+              valueFrom:
+                configMapKeyRef:
+                  key: maven_repo
+                  name: jenkins2-config
+            - name: MAVEN_OPTS
+              valueFrom:
+                configMapKeyRef:
+                  key: maven_opts
+                  name: jenkins2-config
+            - name: NPM_CONFIG_REGISTRY
+              valueFrom:
+                configMapKeyRef:
+                  key: npm_config_registry
+                  name: jenkins2-config
+            - name: NODE_EXTRA_CA_CERTS
+              valueFrom:
+                configMapKeyRef:
+                  key: node_extra_ca_certs
+                  name: jenkins2-config
+            - name: CASC_JENKINS_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  key: casc_configfile
+                  name: jenkins2-config
+      imagePullSecrets:
+        - name: docker-all-nexus3
+      volumes:
+        - name: jenkins2-home
+          hostPath:
+            path: /mnt/local-storage/hdd/disk8
+            type: Directory
+        - name: cacerts
+          configMap:
+            name: jenkins-master-customcacerts
+        - name: ca-certs
+          configMap:
+            name: ptoceti-authorities-ca-certs
+        - name: gitconfig
+          configMap:
+            name: jenkins-git-config
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: jenkins2-http-service
+  namespace: udd
+spec:
+  selector:
+    app: jenkins2
+  ports:
+    - name: jenkins2-http
+      port: 80
+      targetPort: jenkins2-http
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: jenkins2-jnlp-service
+  namespace: udd
+spec:
+  selector:
+    app: jenkins2
+  ports:
+    - name: jenkins2-jnlp
+      port: 50000
+      targetPort: jenkins2-jnlp
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: jenkins2-ingress
+  namespace: udd
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/frontend-entry-points: http,https
+spec:
+  tls:
+    - hosts:
+        - jenkins2.supermicro.intra.ruedenfer37.fr
+      secretName: supermicro-tls-secret
+  rules:
+    - host: jenkins2.supermicro.intra.ruedenfer37.fr
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: jenkins2-http-service
+              servicePort: jenkins2-http

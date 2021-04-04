@@ -1,0 +1,1 @@
+kubectl create configmap jenkins-jnlp-slave-maven-setting --from-file=settings.xml=../src/conf/resources/usersettings/k8_jnlp-slave-maven-settings.xml -n udd --dry-run -o yaml | kubectl replace -f -

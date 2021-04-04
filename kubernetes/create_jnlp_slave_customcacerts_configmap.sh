@@ -1,0 +1,1 @@
+kubectl create configmap jenkins-jnlp-slave-customcacerts --from-file=customcacerts=../src/conf/resources/secrets/certs/custom_jre8_cacerts -n udd --dry-run -o yaml | kubectl replace -f
