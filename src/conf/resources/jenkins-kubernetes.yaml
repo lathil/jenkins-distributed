@@ -128,18 +128,20 @@ tool:
     installations:
       - home: "/usr/bin/git"
         name: "git"
-  jdk:
-    installations:
-      - home: "/usr/lib/jvm/jdk8u242-b08"
-        name: "jdk8u242-b08"
-      - home: "/usr/lib/jvm/jdk-11.0.6+10"
-        name: "jdk-11.0.6+10"
   maven:
     installations:
-      - home: "/opt/mvn/apache-maven-3.5.4"
-        name: "maven-3.5.4"
-      - home: "/opt/mvn/apache-maven-3.6.3"
-        name: "maven-3.6.3"
+      - name: "Maven 3.5.4"
+        home: "/opt/maven/apache-maven-3.5.4"
+      - name: "Maven 3.6.1"
+        home: "/opt/maven/apache-maven-3.6.1"
+    jdk:
+      installations:
+        - name: "Jdk 1.8"
+          home: "/opt/java/jdk8u282-b08"
+        - name: "Jdk 9"
+          home: "/opt/java/jdk-9.0.4+11"
+        - name: "Jdk 11"
+          home: "/opt/java/jdk-11.0.10+9"
 unclassified:
   globalConfigFiles:
       configs:

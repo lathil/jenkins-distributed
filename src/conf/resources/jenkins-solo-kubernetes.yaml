@@ -1,0 +1,128 @@
+jenkins:
+  systemMessage: "Jenkins Supermicro.\n\n"
+  numExecutors: 1
+  agentProtocols:
+    - "JNLP4-connect"
+    - "Ping"
+  slaveAgentPort: 5000
+  globalNodeProperties:
+    - envVars:
+        env:
+          - key: "MAVEN_REPO"
+            value: "https://nexus3.supermicro.intra.ruedenfer37.fr/repository/public/"
+          - key: "releaseRepoUrl"
+            value: "https://nexus3.supermicro.intra.ruedenfer37.fr/repository/releases/"
+          - key: "snapshotRepoUrl"
+            value: "https://nexus3.supermicro.intra.ruedenfer37.fr/repository/snapshots/"
+          - key: "mavenDeployerId"
+            value: "lor.maxmini"
+          - key: "mavenDeployerPassword"
+            value: "lor.maxmini"
+          - key: "giteaJenkinsUserPassword"
+            value: "password"
+  primaryView:
+    all:
+      name: "all"
+  views:
+  - all:
+      name: "all"
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - basicSSHUserPrivateKey:
+              scope: SYSTEM
+              id: 'jenkins-master_id_rsa'
+              username: jenkins
+              passphrase: ''
+              description: "Jenkins master private ssh key"
+              privateKeySource:
+                directEntry:
+                  privateKey: ${jenkins-master_id_rsa}
+          - usernamePassword:
+              scope: SYSTEM
+              id: 'maven-deploy-password'
+              username: 'maven-deployer'
+              password: ${maven-deploy-password}
+          - usernamePassword:
+              scope: SYSTEM
+              id: 'jenkins-gitea-user'
+              username: 'jenkins'
+              password: ${giteaJenkinsUserPassword}
+          - fileSystemServiceAccountCredential:
+              id: "cee00dc1-1cba-4441-b432-d5cc5c3718c2"
+              scope: GLOBAL
+tool:
+  git:
+    installations:
+      - home: "/usr/bin/git"
+        name: "git"
+  maven:
+    installations:
+    - name: "Maven 3.5.4"
+      home: "/opt/maven/apache-maven-3.5.4"
+    - name: "Maven 3.6.1"
+      home: "/opt/maven/apache-maven-3.6.1"
+  jdk:
+    installations:
+    - name: "Jdk 1.8"
+      home: "/opt/java/jdk8u282-b08"
+    - name: "Jdk 9"
+      home: "/opt/java/jdk-9.0.4+11"
+    - name: "Jdk 11"
+      home: "/opt/java/jdk-11.0.10+9"
+unclassified:
+  globalConfigFiles:
+    configs:
+      - globalMavenSettings:
+          comment: "Maven settings via Cfg"
+          content: |-
+            <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                                      https://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+                <mirrors>
+                    <mirror>
+                        <id>nexus</id>
+                        <mirrorOf>*</mirrorOf>
+                        <url>^${MAVEN_REPO}</url>
+                    </mirror>
+
+                </mirrors>
+                <localRepository>/var/jenkins_home/maven-repo</localRepository>
+                <servers>
+                    <server>
+                        <id>releases</id>
+                        <username></username>
+                        <password></password>
+                    </server>
+                    <server>
+                        <id>snapshots</id>
+                        <username></username>
+                        <password>l</password>
+                    </server>
+                </servers>
+                <profiles>
+                    <profile>
+                        <id>nexus</id>
+                        <properties>
+                            <releaseRepoUrl></releaseRepoUrl>
+                            <snapshotRepoUrl></snapshotRepoUrl>
+                        </properties>
+                    </profile>
+                </profiles>
+                <activeProfiles>
+                    <!--make the profile active all the time -->
+                    <activeProfile>nexus</activeProfile>
+                </activeProfiles>
+            </settings>
+          id: "34967f46-eb36-49b8-ad32-68626e9edde6"
+          isReplaceAll: true
+          name: "globalMavenSettings"
+          providerId: "org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig"
+          serverCredentialMappings:
+            - credentialsId: "maven-deploy-password"
+              serverId: "nexus"
+
+

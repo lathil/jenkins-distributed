@@ -1,0 +1,3 @@
+docker build -f Dockerfile-centos-slave-jnlp-maven-java --build-arg MAVEN_VERSION=3.6.3 --build-arg OPENJDK=openjdk11 --build-arg OPENJDK_RELEASE=jdk-11.0.6%2B10 -t ptoceti/docker-jnlp-slave-centos-maven-java11:jdk-11.0.6_10 .
+docker tag ptoceti/docker-jnlp-slave-centos-maven-java11:jdk-11.0.6_10 docker-internal-nexus3.supermicro.intra.ruedenfer37.fr/ptoceti/docker-jnlp-slave-centos-maven-java11:jdk-11.0.6_10
+docker push docker-internal-nexus3.supermicro.intra.ruedenfer37.fr/ptoceti/docker-jnlp-slave-centos-maven-java11:jdk-11.0.6_10

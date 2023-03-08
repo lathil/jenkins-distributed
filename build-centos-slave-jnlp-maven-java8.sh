@@ -1,0 +1,3 @@
+docker build -f Dockerfile-centos-slave-jnlp-maven-java --build-arg OPENJDK=openjdk8 --build-arg OPENJDK_RELEASE=jdk8u242-b08 -t ptoceti/docker-jnlp-slave-centos-maven-java8:jdk8u242-b08 .
+docker tag ptoceti/docker-jnlp-slave-centos-maven-java8:jdk8u242-b08 docker-internal-nexus3.supermicro.intra.ruedenfer37.fr/ptoceti/docker-jnlp-slave-centos-maven-java8:jdk8u242-b08
+docker push docker-internal-nexus3.supermicro.intra.ruedenfer37.fr/ptoceti/docker-jnlp-slave-centos-maven-java8:jdk8u242-b08
