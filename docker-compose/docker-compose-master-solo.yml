@@ -3,9 +3,9 @@ services:
   jenkins-master:
     build:
       context: ../
-      dockerfile: Dockerfile-centos-master
-    image: ptoceti/jenkins-centos-master:latest
-    container_name: ptoceti.jenkins-centos-master
+      dockerfile: ../Dockerfile-master
+    image: ptoceti/jenkins-master:2.387.1-1
+    container_name: ptoceti.jenkins-master
     ports:
     - "8080:8080"
     environment:
@@ -17,11 +17,20 @@ services:
     secrets:
     - jenkinsMaster
     - mavenDeployPassword
+    - jenkins-master_id_rsa
+    - maven-deploy-password
+    - giteaJenkinsUserPassword
 volumes:
   jenkins_master_home:
-    external: true
 secrets:
   jenkinsMaster:
     file: ../src/conf/resources/secrets/jenkins-master/jenkins-master_id_rsa
   mavenDeployPassword:
     file: ../src/conf/resources/secrets/maven/maven-deploy-password
+  jenkins-master_id_rsa:
+    file: ../src/conf/resources/secrets/jenkins-master/jenkins-master_id_rsa
+  maven-deploy-password:
+   file: ../src/conf/resources/secrets/maven/maven-deploy-password
+  giteaJenkinsUserPassword:
+    file: ../src/conf/resources/secrets/gitea/gitea-jenkins-password
+

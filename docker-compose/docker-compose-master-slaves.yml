@@ -3,9 +3,9 @@ services:
   jenkins-master:
     build:
       context: ../
-      dockerfile: Dockerfile-centos-master
-    image: ptoceti/jenkins-centos-master:latest
-    container_name: ptoceti.jenkins-centos-master
+      dockerfile: ../Dockerfile-master-solo-kubernetes
+    image: ptoceti/jenkins-master-kubernetes:2.387.1-1
+    container_name: ptoceti.jenkins-master
     ports:
     - "8080:8080"
     environment:

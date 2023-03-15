@@ -94,7 +94,7 @@ spec:
         runAsGroup: 2001
       containers:
         - name: jenkins2
-          image: docker-all-nexus3.supermicro.intra.ruedenfer37.fr/ptoceti/jenkins-master-centos-kubernetes:2.204.6
+          image: docker-all-nexus3.supermicro.intra.ruedenfer37.fr/ptoceti/jenkins-master:2.387.1-1
           ports:
             - containerPort: 8080
               name: jenkins2-http

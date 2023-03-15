@@ -1,0 +1,64 @@
+FROM jenkins/jenkins:2.387.1-lts-jdk11
+
+MAINTAINER Laurent Thil
+
+LABEL maintainer="lthil" \
+    io.k8s.description="Jenkins 2 master node solo" \
+    io.k8s.display-name="Jenkins 2 master"
+
+ARG MAVEN_CENTRAL_REPO=https://repo1.maven.org/maven2
+ARG NPMJS_REPO=https://registry.npmjs.org
+
+ARG USER_GROUP_ID=2001
+ARG USER_ID=2001
+
+ENV MAVEN_CENTRAL_REPO=${MAVEN_CENTRAL_REPO} \
+    NPMJS_REPO=$[NPMJS_REPO]
+
+USER root
+
+RUN mkdir -p /opt/maven \
+    && cd /opt/maven \
+    && curl -fsSLk -O https://nexus3.supermicro.intra.ruedenfer37.fr/repository/raw/maven/apache-maven-3.5.4-bin.tar.gz \
+    && tar xzvf apache-maven-3.5.4-bin.tar.gz \
+    && rm apache-maven-3.5.4-bin.tar.gz \
+    && curl -fsSLk -O https://nexus3.supermicro.intra.ruedenfer37.fr/repository/raw/maven/apache-maven-3.6.1-bin.tar.gz \
+    && tar xzvf apache-maven-3.6.1-bin.tar.gz \
+    && rm apache-maven-3.6.1-bin.tar.gz
+
+RUN mkdir -p /opt/java \
+    && cd /opt/java \
+    && curl -fsSLk -O https://nexus3.supermicro.intra.ruedenfer37.fr/repository/raw/jdk/OpenJDK8U-jdk_x64_linux_hotspot_8u282b08.tar.gz \
+    && tar xzvf OpenJDK8U-jdk_x64_linux_hotspot_8u282b08.tar.gz \
+    && rm OpenJDK8U-jdk_x64_linux_hotspot_8u282b08.tar.gz \
+    && curl -fsSLk -O https://nexus3.supermicro.intra.ruedenfer37.fr/repository/raw/jdk/OpenJDK9U-jdk_x64_linux_hotspot_9.0.4_11.tar.gz \
+    && tar xzvf OpenJDK9U-jdk_x64_linux_hotspot_9.0.4_11.tar.gz \
+    && rm OpenJDK9U-jdk_x64_linux_hotspot_9.0.4_11.tar.gz \
+    && curl -fsSLk -O https://nexus3.supermicro.intra.ruedenfer37.fr/repository/raw/jdk/OpenJDK11U-jdk_x64_linux_hotspot_11.0.10_9.tar.gz \
+    && tar xzvf OpenJDK11U-jdk_x64_linux_hotspot_11.0.10_9.tar.gz \
+    && rm OpenJDK11U-jdk_x64_linux_hotspot_11.0.10_9.tar.gz
+
+RUN mkdir -p /var/cache/jenkins/war \
+    && chown -R jenkins:jenkins /var/cache/jenkins/war
+
+COPY src/init/groovy/initialsetup.groovy /usr/share/jenkins/ref/init.groovy.d/initialsetup.groovy.override
+COPY src/conf/resources/conf/logging.properties /usr/share/jenkins/ref/conf/logging.properties.override
+COPY src/conf/resources/jenkins-kubernetes.yaml /usr/share/jenkins/ref/jenkins.yaml.override
+
+ENV JENKINS_UC=https://updates.jenkins.io/dynamic-stable-2.387.1 \
+    INITIALSETUP_JENKINS_UPDATESITE_URL=https://updates.jenkins.io/dynamic-stable-2.387.1/update-center.json \
+    INITIALSETUP_JUL_LOGFILEPATH=/var/jenkins_home/logs \
+    INITIALSETUP_JENKINS_JUL_CONFIGFILE=/var/jenkins_home/logging.properties
+
+COPY src/conf/resources/usersettings/settings.xml /usr/share/jenkins/ref/.m2/settings.xml.override
+COPY src/conf/resources/usersettings/.npmrc /usr/share/jenkins/ref/.npmrc.override
+
+COPY src/conf/resources/conf/plugins-kubernetes.txt /usr/share/jenkins/ref/plugins.txt
+
+RUN chown -R jenkins:jenkins /usr/share/jenkins/ref
+
+USER jenkins
+
+RUN jenkins-plugin-cli -f /usr/share/jenkins/ref/plugins.txt
+
+#ENV JENKINS_OPTS="--webroot=/var/cache/jenkins/war"

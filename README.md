@@ -47,6 +47,15 @@ Actually it is organize this way:
 - src/conf/resources/usersettings : npm an maven settings injected in slaves with docker or kubernetes
 - src/conf/resources : Configuration As Code files for use with Jenkins solo / docker / slaves / kubernetes
 
+to build the list of plugin to install, fron an existing woking jenkin, launch this groovy script:
+```
+def pluginList = new ArrayList(Jenkins.instance.pluginManager.plugins)
+pluginList.sort { it.getShortName() }.each{
+  plugin -> 
+    println ("${plugin.getShortName()}:${plugin.getVersion()}")
+}
+```
+
 # Docker
 Several docker file are availble. All are based on Centos
 ## Jenkins master Dockerfiles:
@@ -66,4 +75,6 @@ Three differents settings:
 
 # Kubernetes
 One example
-- kubernetes/kubernetes-jenkins2.yaml : yml template to luanch a Jenkins master based  on Dockerfile-centos-master-kubernetes.yml that launch slaves on demand.
+- kubernetes/kubernetes-jenkins2.yaml : yml template to launch a Jenkins master based  on Dockerfile-centos-master-kubernetes.yml that launch slaves on demand.
+
+kubectl apply -f kubernetes/kubernetes-jenkins2.yaml 

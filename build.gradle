@@ -6,11 +6,13 @@ apply plugin: 'idea'
 
 
 group = 'com.ptoceti'
-version = '1.0.0-SNAPSHOT'
+version = '2.387.1-SNAPSHOT'
 
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+
 
 idea {
     module {
@@ -20,13 +22,15 @@ idea {
 }
 
 repositories {
-    maven { url 'http://repo.jenkins-ci.org/releases/'}
-    maven { url 'http://repo.jenkins-ci.org/releases/org/jenkins-ci/main/jenkins-core/'}
+    maven {url 'https://nexus3.supermicro.intra.ruedenfer37.fr/repository/Jenkins/'}
+    //maven {url 'https://repo.jenkins-ci.org/releases/org/jenkins-ci/main/jenkins-core/'}
+    //maven { url 'http://repo.jenkins-ci.org/releases/'}
+    //maven { url 'http://repo.jenkins-ci.org/releases/org/jenkins-ci/main/jenkins-core/'}
     maven { url 'https://repo.jenkins-ci.org/public/'}
     mavenCentral()
 }
 
-def JENKINS_VERSION = '2.204.6'
+def JENKINS_VERSION = '2.387.1'
 
 configurations {
     jenkinsWar
@@ -62,8 +66,8 @@ task launchJenkins(type: JenkinsLauncher){
     logfilepath = './build/logs'
     jenkinsupdateSiteUrl = "https://updates.jenkins.io/update-center.json"
     //jenkinsupdateSiteUrl = "https://updates.jenkins.io/stable-${JENKINS_VERSION}/update-center.json"
-    jenkinsPluginsFile = 'plugins-kubernetes.txt'
-    cascConfigFile = 'jenkins-kubernetes.yaml'
+    jenkinsPluginsFile = 'plugins.txt'
+    cascConfigFile = 'jenkins.yaml'
 
     jenkinsHomeDir = file("${buildDir}")
 }

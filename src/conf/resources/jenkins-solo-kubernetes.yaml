@@ -1,10 +1,15 @@
 jenkins:
   systemMessage: "Jenkins Supermicro.\n\n"
-  numExecutors: 1
   agentProtocols:
     - "JNLP4-connect"
     - "Ping"
-  slaveAgentPort: 5000
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: false
+  disableRememberMe: false
   globalNodeProperties:
     - envVars:
         env:
@@ -20,12 +25,44 @@ jenkins:
             value: "lor.maxmini"
           - key: "giteaJenkinsUserPassword"
             value: "password"
+  labelAtoms:
+    - name: "built-in"
+  markupFormatter: "plainText"
+  mode: NORMAL
+  myViewsTabBar: "standard"
+  numExecutors: 2
   primaryView:
     all:
       name: "all"
+  projectNamingStrategy: "standard"
+  quietPeriod: 5
+  remotingSecurity:
+    enabled: true
+  scmCheckoutRetryCount: 0
+  securityRealm:
+    local:
+      allowsSignup: false
+      enableCaptcha: false
+      users:
+        - id: "lor"
+          name: "lor"
+          properties:
+            - "mailer"
+            - "favorite"
+            - "apiToken"
+            - "myView"
+            - preferredProvider:
+                providerId: "default"
+            - "timezone"
+  slaveAgentPort: 5000
+  updateCenter:
+    sites:
+      - id: "default"
+        url: "https://updates.jenkins.io/update-center.json"
   views:
-  - all:
-      name: "all"
+    - all:
+        name: "all"
+  viewsTabBar: "standard"
 credentials:
   system:
     domainCredentials:
@@ -49,9 +86,22 @@ credentials:
               id: 'jenkins-gitea-user'
               username: 'jenkins'
               password: ${giteaJenkinsUserPassword}
-          - fileSystemServiceAccountCredential:
-              id: "cee00dc1-1cba-4441-b432-d5cc5c3718c2"
-              scope: GLOBAL
+globalCredentialsConfiguration:
+  configuration:
+    providerFilter: "none"
+    typeFilter: "none"
+security:
+  apiToken:
+    creationOfLegacyTokenEnabled: false
+    tokenGenerationOnCreationEnabled: false
+    usageStatisticsEnabled: true
+  gitHooks:
+    allowedOnAgents: false
+    allowedOnController: false
+  gitHostKeyVerificationConfiguration:
+    sshHostKeyVerificationStrategy: "knownHostsFileVerificationStrategy"
+  sSHD:
+    port: -1
 tool:
   git:
     installations:
@@ -59,23 +109,117 @@ tool:
         name: "git"
   maven:
     installations:
-    - name: "Maven 3.5.4"
-      home: "/opt/maven/apache-maven-3.5.4"
-    - name: "Maven 3.6.1"
-      home: "/opt/maven/apache-maven-3.6.1"
+      - name: "Maven 3.5.4"
+        home: "/opt/maven/apache-maven-3.5.4"
+      - name: "Maven 3.6.1"
+        home: "/opt/maven/apache-maven-3.6.1"
   jdk:
     installations:
-    - name: "Jdk 1.8"
-      home: "/opt/java/jdk8u282-b08"
-    - name: "Jdk 9"
-      home: "/opt/java/jdk-9.0.4+11"
-    - name: "Jdk 11"
-      home: "/opt/java/jdk-11.0.10+9"
+      - name: "Jdk 1.8"
+        home: "/opt/java/jdk8u282-b08"
+      - name: "Jdk 9"
+        home: "/opt/java/jdk-9.0.4+11"
+      - name: "Jdk 11"
+        home: "/opt/java/jdk-11.0.10+9"
+  mavenGlobalConfig:
+    globalSettingsProvider: "standard"
+    settingsProvider: "standard"
 unclassified:
+  ansiColorBuildWrapper:
+    colorMaps:
+      - black: "#000000"
+        blackB: "#4C4C4C"
+        blue: "#1E90FF"
+        blueB: "#4682B4"
+        cyan: "#00CDCD"
+        cyanB: "#00FFFF"
+        green: "#00CD00"
+        greenB: "#00FF00"
+        magenta: "#CD00CD"
+        magentaB: "#FF00FF"
+        name: "xterm"
+        red: "#CD0000"
+        redB: "#FF0000"
+        white: "#E5E5E5"
+        whiteB: "#FFFFFF"
+        yellow: "#CDCD00"
+        yellowB: "#FFFF00"
+      - black: "#000000"
+        blackB: "#555555"
+        blue: "#0000AA"
+        blueB: "#5555FF"
+        cyan: "#00AAAA"
+        cyanB: "#55FFFF"
+        defaultBackground: 0
+        defaultForeground: 7
+        green: "#00AA00"
+        greenB: "#55FF55"
+        magenta: "#AA00AA"
+        magentaB: "#FF55FF"
+        name: "vga"
+        red: "#AA0000"
+        redB: "#FF5555"
+        white: "#AAAAAA"
+        whiteB: "#FFFFFF"
+        yellow: "#AA5500"
+        yellowB: "#FFFF55"
+      - black: "black"
+        blackB: "black"
+        blue: "blue"
+        blueB: "blue"
+        cyan: "cyan"
+        cyanB: "cyan"
+        green: "green"
+        greenB: "green"
+        magenta: "magenta"
+        magentaB: "magenta"
+        name: "css"
+        red: "red"
+        redB: "red"
+        white: "white"
+        whiteB: "white"
+        yellow: "yellow"
+        yellowB: "yellow"
+      - black: "#2E3436"
+        blackB: "#2E3436"
+        blue: "#3465A4"
+        blueB: "#3465A4"
+        cyan: "#06989A"
+        cyanB: "#06989A"
+        defaultBackground: 0
+        defaultForeground: 7
+        green: "#4E9A06"
+        greenB: "#4E9A06"
+        magenta: "#75507B"
+        magentaB: "#75507B"
+        name: "gnome-terminal"
+        red: "#CC0000"
+        redB: "#CC0000"
+        white: "#D3D7CF"
+        whiteB: "#D3D7CF"
+        yellow: "#C4A000"
+        yellowB: "#C4A000"
+  bitbucketEndpointConfiguration:
+    endpoints:
+      - bitbucketCloudEndpoint:
+          enableCache: false
+          manageHooks: false
+          repositoriesCacheDuration: 0
+          teamCacheDuration: 0
+  buildDiscarders:
+    configuredBuildDiscarders:
+      - "jobBuildDiscarder"
+  fingerprints:
+    fingerprintCleanupDisabled: false
+    storage: "file"
+  gitHubConfiguration:
+    apiRateLimitChecker: ThrottleForNormalize
+  gitHubPluginConfig:
+    hookUrl: "http://localhost:8080/github-webhook/"
   globalConfigFiles:
     configs:
       - globalMavenSettings:
-          comment: "Maven settings via Cfg"
+          comment: "Global settings"
           content: |-
             <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
                       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -117,12 +261,26 @@ unclassified:
                     <activeProfile>nexus</activeProfile>
                 </activeProfiles>
             </settings>
-          id: "34967f46-eb36-49b8-ad32-68626e9edde6"
+          id: "c9f4b559-4234-4fcb-a812-1a53ea9c5d66"
           isReplaceAll: true
-          name: "globalMavenSettings"
+          name: "MyGlobalSettings"
           providerId: "org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig"
           serverCredentialMappings:
             - credentialsId: "maven-deploy-password"
               serverId: "nexus"
-
-
+  junitTestResultStorage:
+    storage: "file"
+  mailer:
+    charset: "UTF-8"
+    useSsl: false
+    useTls: false
+  pollSCM:
+    pollingThreadCount: 10
+  scmGit:
+    addGitTagAction: false
+    allowSecondFetch: false
+    createAccountBasedOnEmail: false
+    disableGitToolChooser: false
+    hideCredentials: false
+    showEntireCommitSummaryInChanges: false
+    useExistingAccountWithSameEmail: false
